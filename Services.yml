@@ -1,0 +1,49 @@
+vi service.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ib-deployment
+  labels:
+    app: bank
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bank
+  template:
+    metadata:
+      labels:
+        app: bank
+    spec:
+      containers:
+        - name: cont1
+          image: trainerreyaz/ib-image:latest
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ib-service
+spec:
+  type: ClusterIP
+  selector:
+    app: bank
+  ports:
+    - port: 80 # Exposes the service on port 80
+      targetPort: 80 # Pod's container listens on 80, if you dont use this line, K8s will assign default 80 port
+
+======================================================================
+
+How Traffic Flows
+====================
+Client connects to ib-service:80
+Service forwards request to the Pod's container at 8080 if 80 (because targetPort: 8080 / 80)
+The container in the Pod listens on 8080 / 80 and processes the request.
+
+targetport = Pod's container
+nodeport = Node's external port
+
+I kubectl create -f service.yml [To create deployment]
+kubectl get pods [To get the list of the pods]
+kubectl get svc [Get the list of services created]
